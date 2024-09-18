@@ -24,15 +24,19 @@ with open(URLS, 'r') as fh:
         print(index, url)
         data_raw = requests.get(url)
         index += 1
+
         data_raw = data_raw.json()
         if DEBUG: print(data_raw)
+        if 'features' not in data_raw:
+            invalid_record = InvalidRecords(url, 'Feature is not present, error received')
+            data_invalid.append(invalid_record._asdict())
+            continue
         if not data_raw['features']:
             invalid_record = InvalidRecords(url, 'Feature is None')
             data_invalid.append(invalid_record._asdict())
             continue
 
         if len(data_raw['features']) > 1: 
-            print('data_raw: ', data_raw)
             invalid_record = InvalidRecords(url, 'multiple choices')
             data_invalid.append(invalid_record._asdict())
             continue
@@ -50,7 +54,7 @@ with open(URLS, 'r') as fh:
         # print(record)
         data_out.append(record._asdict())
 
-        time.sleep(1)
+        #time.sleep(1)
 
 
 with open('ports.csv', 'w', newline='') as csvfile:
